@@ -1,2 +1,2 @@
 # University-Management-System
-try to understand the ui files
+try to understand the source files
