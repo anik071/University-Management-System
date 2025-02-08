@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/resources">
-        <file>login/facultyLogin.txt</file>
-        <file>login/studentLogin.txt</file>
-    </qresource>
-</RCC>
