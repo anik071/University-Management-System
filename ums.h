@@ -41,7 +41,16 @@ private slots:
 
     void read();
 
-    void on_AddStudent_clicked();
+    
+    void on_Dashboard_Admin_clicked();
+
+    void on_Dashboard_Student_clicked();
+
+    void on_Logut_1_clicked();
+
+    void on_pushButton_12_clicked();
+
+    void on_pushButton_14_clicked();
 
 private:
     Ui::UMS *ui;
