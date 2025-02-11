@@ -5,7 +5,7 @@
 #include<QFile>
 #include<QDebug>
 #include<QCoreApplication>
-
+#include<QDialogButtonBox>
 using namespace std;
 
 map<string,string>admin={{"admin","admin"}},student={{"root","root"}};
@@ -158,8 +158,37 @@ void UMS::on_lineEdit_4_returnPressed()//pressing enter will set the cursor in B
 }
 
 
-void UMS::on_AddStudent_clicked()
+
+
+
+
+void UMS::on_Dashboard_Admin_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(0);
+}
+
+
+void UMS::on_Dashboard_Student_clicked()
+{
+ ui->stackedWidget->setCurrentIndex(4);
+}
+
+
+void UMS::on_Logut_1_clicked()
 {
 
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+
+void UMS::on_pushButton_12_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+
+void UMS::on_pushButton_14_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(1);
 }
 
