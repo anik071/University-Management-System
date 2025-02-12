@@ -1,62 +1,21 @@
 #include "ums.h"
 #include "ui_ums.h"
-#include<bits/stdc++.h>
-#include<QString>
-#include<QFile>
-#include<QDebug>
-#include<QCoreApplication>
-#include<QDialogButtonBox>
-using namespace std;
+#include<QMessageBox>
+#include<QSqlQueryModel>
 
-map<string,string>admin={{"admin","admin"}},student={{"root","root"}};
 UMS::UMS(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::UMS)
 {
     ui->setupUi(this);
-       read();
+ca
+
     ui->stackedWidget->setCurrentIndex(0);
 }
-
+ QString Users;
 UMS::~UMS()
 {
     delete ui;
-}
-void UMS::read(){
-    QFile file(":/resources/login/facultyLogin.txt");
-
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            //qDebug() << "Error: Cannot open file from resources!";
-            return;
-        }
-
-        QTextStream in(&file);
-        while (!in.atEnd()) {
-            QString key = in.readLine();
-            QString value = in.readLine();
-            string keys=key.toStdString(),values=value.toStdString();
-            admin.insert(pair<string,string>(keys,values));
-            //qDebug() << "Key:" << key << ", Value:" << value;
-        }
-        file.close();
-        QFile file1(":/resources/login/studentLogin.txt");
-
-            if (!file1.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                //qDebug() << "Error: Cannot open file from resources!";
-                return;
-            }
-
-            QTextStream in1(&file1);
-            while (!in1.atEnd()) {
-                QString key1 = in1.readLine();
-                QString value1 = in1.readLine();
-                string keys1=key1.toStdString(),values1=value1.toStdString();
-                student.insert(pair<string,string>(keys1,values1));
-                //qDebug() << "Key:" << key << ", Value:" << value;
-            }
-            file1.close();
-
-
 }
 void UMS::on_pushButton_clicked() //Administration Log-In Button
 {
@@ -101,36 +60,66 @@ void UMS::on_pushButton_7_clicked()//Back Button From Student page
 void UMS::on_pushButton_4_clicked()// Log-In Button for Administration
 {
     QString user=ui->lineEdit->text();      //Taking Input from line Editor
-    string username=user.toStdString();     //Converting Qstring to c++ String
+
     QString pass=ui->lineEdit_2->text();
-    string password=pass.toStdString();
-    if(username.size()>0&&password.size()>0){   //If username or password is longer than 0 charachter then it will work
-    if(admin[username]==password){          //If username matches its corresponding password then it will take to the next page
-        Dialog *Log=new Dialog(1,this);
-        Log->show();
-        ui->stackedWidget->setCurrentIndex(3);  //Used to changed widget screen
-    }else{
-        Dialog *Log=new Dialog(0,this);
-        Log->show();
-    }}
+    Users=user;
+    if(user.size()==0 or pass.size()==0){   //If username or password is longer than 0 charachter then it will work
+        QMessageBox::critical(this,"Input Error","username/password can't be empty");
+        return;
+    }
+    if(!connopen()){
+        qDebug()<<"Failed to open";
+        return ;
+    }
+    QSqlQuery qry;
+    if(qry.exec("select * from faculty where username='"+user+"' and password='"+pass+"'")){
+        if(qry.next()){
+            Dialog *Log=new Dialog(1,this);
+            Log->show();
+            ui->lineEdit->clear();
+            ui->lineEdit_2->clear();
+            ui->stackedWidget->setCurrentIndex(3);
+            ui->stackedWidget_2->setCurrentIndex(0);
+
+        }else{
+            Dialog *Log=new Dialog(0,this);
+            Log->show();
+        }
+
+    }
+
 }
 
 
 void UMS::on_pushButton_5_clicked()//Log-In Button for Students
 {
     QString user=ui->lineEdit_3->text();    //Same as on_pushButton_4_clicked
-    string username=user.toStdString();
+
     QString pass=ui->lineEdit_4->text();
-    string password=pass.toStdString();
-    if(username.size()>0&&password.size()>0){
-    if(student[username]==password){
-        Dialog *Log=new Dialog(1,this);
-        Log->show();
-        ui->stackedWidget->setCurrentIndex(4);
-    }else{
-        Dialog *Log=new Dialog(0,this);
-        Log->show();
-    }}
+    Users=user;
+    if(user.size()==0&&pass.size()==0){
+        QMessageBox::critical(this,"Input Error","username/password can't be empty");
+        return;
+    }
+    if(!connopen()){
+        qDebug()<<"Failed to open";
+        return ;
+    }
+    QSqlQuery qry;
+    if(qry.exec("select * from student where username='"+user+"' and password='"+pass+"'")){
+        if(qry.next()){
+            Dialog *Log=new Dialog(1,this);
+            Log->show();
+            ui->lineEdit_3->clear();
+            ui->lineEdit_4->clear();
+            ui->stackedWidget->setCurrentIndex(4);
+            ui->stackedWidget_3->setCurrentIndex(0);
+        }else{
+            Dialog *Log=new Dialog(0,this);
+            Log->show();
+        }
+
+    }
 }
 
 
@@ -168,11 +157,6 @@ void UMS::on_Dashboard_Admin_clicked()
 }
 
 
-void UMS::on_Dashboard_Student_clicked()
-{
- ui->stackedWidget->setCurrentIndex(4);
-}
-
 
 void UMS::on_Logut_1_clicked()
 {
@@ -190,5 +174,35 @@ void UMS::on_pushButton_12_clicked()
 void UMS::on_pushButton_14_clicked()
 {
     ui->stackedWidget_2->setCurrentIndex(1);
+    if(!connopen()){
+        qDebug()<<"Failed to open";
+        return ;
+    }
+    QSqlQuery qry;
+    if(qry.exec("select * from faculty where username='"+Users+"'")){
+        if(qry.next()){
+            ui->Admin_name->setText(qry.value(0).toString());
+            ui->Admin_name->setReadOnly(true);
+            ui->Admin_email->setText(qry.value(8).toString());
+            ui->Admin_email->setReadOnly(true);
+            ui->Admin_contact->setText(qry.value(7).toString());
+            ui->Admin_contact->setReadOnly(true);
+            ui->Admin_designation->setText(qry.value(9).toString());
+            ui->Admin_designation->setReadOnly(true);
+            ui->Admin_blood->setText(qry.value(4).toString());
+            ui->Admin_blood->setReadOnly(true);
+            ui->Admin_ed->setText(qry.value(6).toString());
+            ui->Admin_ed->setReadOnly(true);
+        }
+}}
+
+
+
+
+void UMS::on_pushButton_17_clicked()
+{
+    ui->stackedWidget_2->setCurrentIndex(2);
 }
 
+
+void UMS::on_Add
